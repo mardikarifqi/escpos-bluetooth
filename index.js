@@ -42,23 +42,28 @@ Bluetooth.findPrinters = async function(){
   if (device === null) {
     device = new bluetooth.DeviceINQ();
   }
-  const devices = await device.scan();
-  const printers = await Promise.all(devices.map(({address, name}) => {
-    return new Promise((resolve, reject) => {
-      device.findSerialPortChannel(address, function(channel){
-        if (channel === -1) {
-          resolve(undefined);
-        } else {
-          resolve({
-            address,
-            name,
-            channel
-          })
-        }
-      });
+  return await new Promise(accept=>{
+    device.listPairedDevices((devices) => {
+      accept(devices);
     });
-  }));
-  return printers;
+  })
+  // const devices = await device.scan();
+  // const printers = await Promise.all(devices.map(({address, name}) => {
+  //   return new Promise((resolve, reject) => {
+  //     device.findSerialPortChannel(address, function(channel){
+  //       if (channel === -1) {
+  //         resolve(undefined);
+  //       } else {
+  //         resolve({
+  //           address,
+  //           name,
+  //           channel
+  //         })
+  //       }
+  //     });
+  //   });
+  // }));
+  // return printers;
 };
 
 /**
