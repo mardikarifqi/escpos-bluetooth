@@ -1,5 +1,5 @@
 'use strict';
-const bluetooth = require("node-bluetooth");
+const bluetooth = require("../lib/node-bluetooth");
 const device = new bluetooth.DeviceINQ();
 
 /**
