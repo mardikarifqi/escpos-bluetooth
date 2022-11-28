@@ -1,6 +1,6 @@
 {
   "name": "escpos-bluetooth",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-alpha.2-simplus",
   "description": "bluetooth adapter for escpos",
   "main": "index.js",
   "scripts": {
@@ -11,9 +11,8 @@
     "escpos-adapter"
   ],
   "dependencies": {
-    "node-bluetooth": "https://github.com/mardikarifqi/node-bluetooth"
+    "@abandonware/noble": "^1.9.2-15",
+    "bluetooth-serial-port": "https://github.com/mardikarifqi/bluetooth-serial-port-no-darwin"
   },
-  "author": "Lsong <song940@gmail.com> (https://lsong.org)",
-  "license": "MIT",
-  "gitHead": "1feb83c1b2ed0d9dd586f08870cfe0df31e23d7f"
+  "license": "MIT"
 }
