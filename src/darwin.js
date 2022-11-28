@@ -8,7 +8,9 @@ const discoveredPeripheral = new Map();
 let stopScanningTimer = null;
 
 noble.on("discover", peripheral => {
-  discoveredPeripheral.set(peripheral.uuid, peripheral);
+  if (peripheral.connectable) {
+    discoveredPeripheral.set(peripheral.uuid, peripheral);
+  }
 });
 
 function scanFor10s() {
@@ -50,16 +52,11 @@ Bluetooth.findPrinters = async function () {
         return {
           name: peripheral.advertisement.localName,
           address: peripheral.uuid,
-          services: peripheral.services.map(service => {
-            return service.characteristics.filter(characteristic => {
-              return characteristic.properties.includes("write");
-            }).map(characteristic => {
-              return {
-                name: characteristic.name || "SPP",
-                channel: characteristic.uuid
-              }
-            }).flat()
-          })
+          // usually, uuid with 4 char is occupied by bluetooth. SPP usually uses non official uuid.
+          services: peripheral.advertisement.serviceUuids ? peripheral.advertisement.serviceUuids.filter(uuid => uuid.length != 4).map(uuid => ({
+            name: "Serial over GATT",
+            channel: uuid,
+          })) : []
         }
       }))
     }, 10000);
@@ -98,9 +95,14 @@ Bluetooth.prototype.open = async function (callback) {
         callback && callback(err);
         return;
       }
-      const characteristic = characteristics.find(characteristic => characteristic.uuid == this.channel);
-      if (!characteristics) {
+      const service = services.find(service => service.uuid === this.channel);
+      if (!service) {
         callback && callback(new Error("Channel cannot be found"));
+        return;
+      }
+      const characteristic = characteristics.find(characteristic => characteristic.properties.includes("write"));
+      if (!characteristics) {
+        callback && callback(new Error("Device unwritable"));
         return;
       }
       this.characteristic = characteristic;
@@ -142,5 +144,4 @@ Bluetooth.prototype.write = function (data, callback) {
   this.characteristic.write(data, true, callback);
 };
 
-scanFor10s();
 module.exports = Bluetooth;
